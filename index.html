@@ -71,7 +71,35 @@
             color: #333;
             margin: 20px 0;
         }
+
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
     </style>
+    <script type="module">
+        import { verificarLogin } from './js/auth.js';
+        if (!verificarLogin()) {
+            window.location.href = 'login.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('auth');
+            window.location.href = 'login.html';
+        }
+    </script>
 </head>
 
 <body>
@@ -80,6 +108,7 @@
             <img src="logo-hospital-bahia.png" alt="Hospital da Bahia" class="header-logo">
             <h1>Sistema de Auditoria</h1>
             <p class="subtitle">Controle de Infecção Hospitalar - SCIH</p>
+            <button class="logout-button" onclick="logout()">Sair</button>
         </div>
 
         <div class="audit-grid">

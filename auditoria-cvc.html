@@ -15,6 +15,10 @@
     <script src="js/export-utils.js"></script>
     <script type="module">
         import { carregarDados, salvarRegistro } from './js/api-client.js';
+        import { verificarLogin } from './js/auth.js';
+        if (!verificarLogin()) {
+            window.location.href = 'login.html';
+        }
     </script>
 </head>
 
