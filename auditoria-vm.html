@@ -3,27 +3,41 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Auditoria de Ventilação Mecânica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditoria VM - DASA</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="js/export-utils.js"></script>
     <script type="module">
+        import { carregarDados, salvarRegistro } from './js/api-client.js';
         import { verificarLogin } from './js/auth.js';
+        import { showToast, showLoading, hideLoading, navigateWithLoading } from './js/ui-utils.js';
+
         if (!verificarLogin()) {
             window.location.href = 'login.html';
         }
+
+        window.carregarDados = carregarDados;
+        window.salvarRegistro = salvarRegistro;
+        window.inicializarDados = async () => {
+            showLoading();
+            dados = await carregarDados('vm');
+            atualizarTabela();
+            hideLoading();
+        };
+        window.navigateWithLoading = navigateWithLoading;
     </script>
 </head>
 
 <body>
-    <div class="container">
+    <div class="container fade-in">
         <div class="header">
             <img src="logo-hospital-bahia.png" alt="Hospital da Bahia" class="header-logo">
             <h2>Auditoria de Ventilação Mecânica</h2>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <a href="index.html" style="text-decoration: none;">
-                <button type="button" style="background-color: #666;">Voltar ao Menu</button>
+            <a href="#" onclick="navigateWithLoading('menu.html', 'Voltando ao Menu...')" class="back-button">
+                Voltar ao Menu
             </a>
         </div>
         <form id="vmForm">
@@ -135,7 +149,7 @@
                 <textarea name="obs" rows="3"></textarea>
             </div>
 
-            <button type="submit">Adicionar Registro</button>
+            <button type="submit" class="button-primary">Adicionar Registro</button>
         </form>
 
         <table id="dadosTable">
@@ -300,6 +314,10 @@
                 form.reset();
             };
         </script>
+
+        <button onclick="exportarCSV()" class="button-primary">
+            📊 Exportar para Excel
+        </button>
     </div>
 
 </body>

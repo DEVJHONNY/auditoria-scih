@@ -3,34 +3,50 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auditoria CVC - DASA</title>
-    <!-- Include meta tags -->
-    <script>
-        fetch('head.html')
-            .then(response => response.text())
-            .then(text => document.head.insertAdjacentHTML('beforeend', text));
-    </script>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="js/export-utils.js"></script>
     <script type="module">
         import { carregarDados, salvarRegistro } from './js/api-client.js';
         import { verificarLogin } from './js/auth.js';
+        import { showLoadingWithMessage, hideLoading, showToast, pageTransition, addTableAnimation, navigateWithLoading } from './js/ui-utils.js';
+
         if (!verificarLogin()) {
             window.location.href = 'login.html';
         }
+
+        window.carregarDados = carregarDados;
+        window.salvarRegistro = salvarRegistro;
+        window.inicializarDados = async () => {
+            showLoadingWithMessage('Carregando registros...');
+            try {
+                pageTransition();
+                dados = await carregarDados('cvc');
+                atualizarTabela();
+                addTableAnimation();
+                showToast('Dados carregados com sucesso');
+            } catch (error) {
+                showToast('Erro ao carregar dados', 'error');
+            } finally {
+                hideLoading();
+            }
+        };
+
+        window.navigateWithLoading = navigateWithLoading;
     </script>
 </head>
 
 <body>
-    <div class="container">
+    <div class="container fade-in">
         <div class="header">
             <img src="logo-hospital-bahia.png" alt="Hospital da Bahia" class="header-logo">
             <h2>Auditoria de CVC</h2>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <a href="index.html" style="text-decoration: none;">
-                <button type="button" style="background-color: #666;">Voltar ao Menu</button>
+            <a href="#" onclick="navigateWithLoading('menu.html', 'Voltando ao Menu...')" class="back-button">
+                Voltar ao Menu
             </a>
         </div>
         <form id="cvcForm">
@@ -153,7 +169,7 @@
                 <textarea name="obs" rows="3"></textarea>
             </div>
 
-            <button type="submit">Adicionar Registro</button>
+            <button type="submit" class="button-primary">Adicionar Registro</button>
         </form>
 
         <table id="dadosTable">
@@ -218,8 +234,8 @@
             </div>
         </div>
 
-        <button onclick="exportarCSV()" class="export-button">
-            📊 Exportar para Excel (CSV)
+        <button onclick="exportarCSV()" class="button-primary">
+            📊 Exportar para Excel
         </button>
 
         <script>
