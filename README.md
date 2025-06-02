@@ -6,28 +6,16 @@ Sistema para registro e controle de auditorias de CVC, Sonda Vesical e Ventilaç
 
 - Registro de auditorias de CVC, Sonda e VM
 - Exportação para Excel
-- Login seguro
+- Sistema de login seguro
 - Filtros por data e setor
 - Responsivo para mobile
 
-## Credenciais de Acesso
-
-- **Enfermeira 1**: 
-  - Usuário: enfermeira1
-  - Senha: senha123
-
-- **Enfermeira 2**: 
-  - Usuário: enfermeira2 
-  - Senha: senha456
-
-- **Admin**:
-  - Usuário: admin
-  - Senha: senhaAdmin
-
-## Como Acessar
+## Acesso
 
 O sistema está disponível em:
 https://devjhonny.github.io/auditoria-scih/
+
+Para solicitar acesso, entre em contato com o administrador do SCIH.
 
 ## Desenvolvimento
 
@@ -36,6 +24,15 @@ https://devjhonny.github.io/auditoria-scih/
 3. Execute: `node server/server.js`
 4. Acesse: `http://localhost:8080`
 
+## Segurança
+
+- Acesso restrito por login
+- Dados armazenados de forma segura
+- Sessão expira automaticamente após 8 horas
+
 ## Suporte
 
-Em caso de dúvidas ou problemas, contate o suporte técnico.
+Em caso de dúvidas ou problemas:
+1. Contate o suporte técnico do SCIH
+2. Verifique se sua sessão está ativa
+3. Limpe o cache do navegador se necessário
