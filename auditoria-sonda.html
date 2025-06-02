@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Auditoria de Sonda Vesical</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .header-logo {
+            max-width: 100px;
+            height: auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .export-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .export-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="js/export-utils.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo-hospital-bahia.png" alt="Hospital da Bahia" class="header-logo">
+            <h2>Auditoria de Sonda Vesical</h2>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="index.html" style="text-decoration: none;">
+                <button type="button" style="background-color: #666;">Voltar ao Menu</button>
+            </a>
+        </div>
+        <form id="sondaForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nome do Paciente:</label>
+                    <input type="text" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label>Data da Auditoria:</label>
+                    <input type="date" name="data" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tem Indicação de Cateter SVD:</label>
+                    <select name="indicacaoSVD" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim (Conforme)</option>
+                        <option value="0">Não (Não Conforme)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de SVD:</label>
+                    <select name="tipoSVD" required>
+                        <option value="">Selecione</option>
+                        <option value="C">Comum</option>
+                        <option value="T">Três vias</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Sistema fechado íntegro e com data:</label>
+                <select name="sistemaFechado" required>
+                    <option value="">Selecione</option>
+                    <option value="1">Sim</option>
+                    <option value="0">Não</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Bolsa coletora abaixo do nível da bexiga:</label>
+                <select name="bolsaColetora" required>
+                    <option value="">Selecione</option>
+                    <option value="S">Sim</option>
+                    <option value="N">Não</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Fixação adequada do dispositivo:</label>
+                <select name="fixacao" required>
+                    <option value="">Selecione</option>
+                    <option value="S">Sim</option>
+                    <option value="N">Não</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Setor:</label>
+                <select name="setor" required>
+                    <option value="">Selecione o setor</option>
+                    <option value="UTI 2B">UTI 2ºB</option>
+                    <option value="UTI 2C">UTI 2ºC</option>
+                    <option value="UTI 5C">UTI 5ºC</option>
+                    <option value="SEMI 6C">SEMI 6C</option>
+                    <option value="Unidades Abertas">Unidades Abertas</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Observações:</label>
+                <textarea name="obs" rows="3"></textarea>
+            </div>
+
+            <button type="submit">Adicionar Registro</button>
+        </form>
+
+        <table id="dadosTable">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Setor</th>
+                    <th>SVD Indicação Adequada</th>
+                    <th>Fixação SVD</th>
+                    <th>Higiene Íntima</th>
+                    <th>Fluxo Desobstruído</th>
+                    <th>Coletor Abaixo Bexiga</th>
+                    <th>Coletor sem Tocar Chão</th>
+                    <th>Coletor até 2/3</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td id="totalIndicacao">0</td>
+                    <td id="totalFixacao">0</td>
+                    <td id="totalHigiene">0</td>
+                    <td id="totalFluxo">0</td>
+                    <td id="totalColetor">0</td>
+                    <td id="totalChao">0</td>
+                    <td id="totalVolume">0</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="form-row" style="margin-top: 20px;">
+            <div class="form-group">
+                <label>Tipo de Filtro de Data:</label>
+                <select id="tipoFiltroData" onchange="toggleFiltroData()">
+                    <option value="data">Data Específica</option>
+                    <option value="periodo">Período</option>
+                </select>
+            </div>
+            <div id="filtroDataUnica" class="form-group">
+                <label>Data:</label>
+                <input type="date" id="filtroData">
+            </div>
+            <div id="filtroPeriodo" class="form-group" style="display: none;">
+                <div style="display: flex; gap: 10px;">
+                    <div>
+                        <label>Data Inicial:</label>
+                        <input type="date" id="filtroDataInicial">
+                    </div>
+                    <div>
+                        <label>Data Final:</label>
+                        <input type="date" id="filtroDataFinal">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Filtrar por Setor:</label>
+                <select id="filtroSetor">
+                    <option value="">Todos os setores</option>
+                    <option value="UTI 2B">UTI 2ºB</option>
+                    <option value="UTI 2C">UTI 2ºC</option>
+                    <option value="UTI 5C">UTI 5ºC</option>
+                    <option value="SEMI 6C">SEMI 6C</option>
+                    <option value="Unidades Abertas">Unidades Abertas</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="exportarCSV()" class="export-button">
+            📊 Exportar para Excel (CSV)
+        </button>
+
+        <script>
+            const form = document.getElementById('sondaForm');
+            const tabela = document.getElementById('dadosTable').getElementsByTagName('tbody')[0];
+
+            // Dados iniciais
+            let dados = [];
+
+            function atualizarTabela() {
+                tabela.innerHTML = '';
+                dados.forEach(linha => {
+                    const row = tabela.insertRow();
+                    linha.forEach(valor => {
+                        const td = row.insertCell();
+                        td.textContent = valor;
+                    });
+                });
+                atualizarTotais();
+            }
+
+            function toggleFiltroData() {
+                const tipo = document.getElementById('tipoFiltroData').value;
+                document.getElementById('filtroDataUnica').style.display =
+                    tipo === 'data' ? 'block' : 'none';
+                document.getElementById('filtroPeriodo').style.display =
+                    tipo === 'periodo' ? 'block' : 'none';
+            }
+
+            function exportarCSV() {
+                const headers = ['Data', 'Setor', 'SVD Indicação', 'Fixação', 'Higiene', 'Fluxo', 'Coletor Bexiga', 'Coletor Chão', 'Volume 2/3'];
+                const totais = [
+                    document.getElementById('totalIndicacao').textContent,
+                    document.getElementById('totalFixacao').textContent,
+                    document.getElementById('totalHigiene').textContent,
+                    document.getElementById('totalFluxo').textContent,
+                    document.getElementById('totalColetor').textContent,
+                    document.getElementById('totalChao').textContent,
+                    document.getElementById('totalVolume').textContent
+                ];
+
+                const tipoData = document.getElementById('tipoFiltroData').value;
+                const filtros = {
+                    tipoData,
+                    data: document.getElementById('filtroData').value,
+                    dataInicial: document.getElementById('filtroDataInicial').value,
+                    dataFinal: document.getElementById('filtroDataFinal').value,
+                    setor: document.getElementById('filtroSetor').value
+                };
+
+                exportarParaExcel(dados, headers, 'auditoria_svd', totais, filtros);
+            }
+
+            function atualizarTotais() {
+                const totais = dados.reduce((acc, linha) => {
+                    for (let i = 2; i < 9; i++) {
+                        acc[i] = (acc[i] || 0) + Number(linha[i]);
+                    }
+                    return acc;
+                }, {});
+
+                ['Indicacao', 'Fixacao', 'Higiene', 'Fluxo', 'Coletor', 'Chao', 'Volume'].forEach((campo, idx) => {
+                    document.getElementById('total' + campo).textContent = totais[idx + 2] || 0;
+                });
+            }
+
+            // Atualiza a tabela e os totais ao carregar a página
+            atualizarTabela();
+            atualizarTotais();
+
+            // Atualiza os totais após adicionar novo registro
+            form.onsubmit = function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const linha = [
+                    formData.get('data'),
+                    formData.get('setor'),
+                    Number(formData.get('indicacaoSVD')),
+                    Number(formData.get('fixacao')),
+                    Number(formData.get('higieneIntima')),
+                    Number(formData.get('fluxoDesobstruido')),
+                    Number(formData.get('coletorAbaixo')),
+                    Number(formData.get('coletorChao')),
+                    Number(formData.get('coletorVolume'))
+                ];
+                dados.push(linha);
+                atualizarTabela();
+                atualizarTotais();
+                form.reset();
+            };
+        </script>
+    </div>
+</body>
+
+</html>

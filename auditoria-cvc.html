@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Auditoria CVC - DASA</title>
+    <!-- Include meta tags -->
+    <script>
+        fetch('head.html')
+            .then(response => response.text())
+            .then(text => document.head.insertAdjacentHTML('beforeend', text));
+    </script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="js/export-utils.js"></script>
+    <script type="module">
+        import { carregarDados, salvarRegistro } from './js/api-client.js';
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo-hospital-bahia.png" alt="Hospital da Bahia" class="header-logo">
+            <h2>Auditoria de CVC</h2>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="index.html" style="text-decoration: none;">
+                <button type="button" style="background-color: #666;">Voltar ao Menu</button>
+            </a>
+        </div>
+        <form id="cvcForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nome do Paciente:</label>
+                    <input type="text" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label>Data da Auditoria:</label>
+                    <input type="date" name="data" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tem indicação de manter o CVC?</label>
+                    <select name="indicacaoCVC" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim (Conforme)</option>
+                        <option value="0">Não (Não Conforme)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Cateter:</label>
+                    <select name="tipoCateter" required>
+                        <option value="">Selecione</option>
+                        <option value="DL">Duplo Lúmen (DL)</option>
+                        <option value="TL">Triplo Lúmen (TL)</option>
+                        <option value="Shilley">Shilley</option>
+                        <option value="Permcath">Permcath</option>
+                        <option value="PICC">PICC</option>
+                        <option value="Hickman">Hickman</option>
+                        <option value="Port-a-cath">Port-a-cath</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Local de Inserção:</label>
+                    <select name="localInsercao" required>
+                        <option value="">Selecione</option>
+                        <option value="Femoral">Femoral</option>
+                        <option value="Jugular">Jugular</option>
+                        <option value="Subclávia">Subclávia</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Curativo:</label>
+                    <select name="tipoCurativo" required>
+                        <option value="">Selecione</option>
+                        <option value="Convencional">Convencional (Gaze + Película)</option>
+                        <option value="Transparente">Transparente (película)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Curativo está íntegro, limpo e seco?</label>
+                <select name="curativoIntegro" required>
+                    <option value="">Selecione</option>
+                    <option value="1">Sim</option>
+                    <option value="0">Não</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Curativo com identificação e dentro da validade?</label>
+                <select name="curativoIdentificacao" required>
+                    <option value="">Selecione</option>
+                    <option value="1">Sim</option>
+                    <option value="0">Não</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Equipo e conectores datados e na validade?</label>
+                <select name="equipoValidade" required>
+                    <option value="">Selecione</option>
+                    <option value="1">Sim</option>
+                    <option value="0">Não</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Foi realizado cobertura do CVC antes do banho?</label>
+                <select name="coberturaBanho" required>
+                    <option value="">Selecione</option>
+                    <option value="1">Sim</option>
+                    <option value="0">Não</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Na inserção de CVC há presença de sinais flogísticos?</label>
+                <select name="sinaisFlogisticos" required>
+                    <option value="">Selecione</option>
+                    <option value="1">Sim</option>
+                    <option value="0">Não</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Setor:</label>
+                <select name="setor" required>
+                    <option value="">Selecione o setor</option>
+                    <option value="UTI 2B">UTI 2ºB</option>
+                    <option value="UTI 2C">UTI 2ºC</option>
+                    <option value="UTI 5C">UTI 5ºC</option>
+                    <option value="SEMI 6C">SEMI 6C</option>
+                    <option value="Unidades Abertas">Unidades Abertas</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Observações:</label>
+                <textarea name="obs" rows="3"></textarea>
+            </div>
+
+            <button type="submit">Adicionar Registro</button>
+        </form>
+
+        <table id="dadosTable">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Setor</th>
+                    <th>Indicação CVC</th>
+                    <th>Integridade do Curativo</th>
+                    <th>Sinais Flogísticos</th>
+                    <th>Identificação do Curativo</th>
+                    <th>Validade de Equipo</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td id="totalIndicacao">0</td>
+                    <td id="totalIntegridade">0</td>
+                    <td id="totalSinais">0</td>
+                    <td id="totalIdentificacao">0</td>
+                    <td id="totalValidade">0</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="form-row" style="margin-top: 20px;">
+            <div class="form-group">
+                <label>Tipo de Filtro de Data:</label>
+                <select id="tipoFiltroData" onchange="toggleFiltroData()">
+                    <option value="data">Data Específica</option>
+                    <option value="periodo">Período</option>
+                </select>
+            </div>
+            <div id="filtroDataUnica" class="form-group">
+                <label>Data:</label>
+                <input type="date" id="filtroData">
+            </div>
+            <div id="filtroPeriodo" class="form-group" style="display: none;">
+                <div style="display: flex; gap: 10px;">
+                    <div>
+                        <label>Data Inicial:</label>
+                        <input type="date" id="filtroDataInicial">
+                    </div>
+                    <div>
+                        <label>Data Final:</label>
+                        <input type="date" id="filtroDataFinal">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Filtrar por Setor:</label>
+                <select id="filtroSetor">
+                    <option value="">Todos os setores</option>
+                    <option value="UTI 2B">UTI 2ºB</option>
+                    <option value="UTI 2C">UTI 2ºC</option>
+                    <option value="UTI 5C">UTI 5ºC</option>
+                    <option value="SEMI 6C">SEMI 6C</option>
+                    <option value="Unidades Abertas">Unidades Abertas</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="exportarCSV()" class="export-button">
+            📊 Exportar para Excel (CSV)
+        </button>
+
+        <script>
+            const form = document.getElementById('cvcForm');
+            const tabela = document.getElementById('dadosTable').getElementsByTagName('tbody')[0];
+
+            // Dados iniciais
+            let dados = [];
+
+            function atualizarTotais() {
+                const totais = dados.reduce((acc, linha) => {
+                    acc.indicacao += Number(linha[2]);
+                    acc.integridade += Number(linha[3]);
+                    acc.sinais += Number(linha[4]);
+                    acc.identificacao += Number(linha[5]);
+                    acc.validade += Number(linha[6]);
+                    return acc;
+                }, { indicacao: 0, integridade: 0, sinais: 0, identificacao: 0, validade: 0 });
+
+                document.getElementById('totalIndicacao').textContent = totais.indicacao;
+                document.getElementById('totalIntegridade').textContent = totais.integridade;
+                document.getElementById('totalSinais').textContent = totais.sinais;
+                document.getElementById('totalIdentificacao').textContent = totais.identificacao;
+                document.getElementById('totalValidade').textContent = totais.validade;
+            }
+
+            function atualizarTabela() {
+                tabela.innerHTML = '';
+                dados.forEach(linha => {
+                    const row = tabela.insertRow();
+                    linha.forEach(valor => {
+                        const td = row.insertCell();
+                        td.textContent = valor;
+                    });
+                });
+                atualizarTotais();
+            }
+
+            // Carregar dados ao iniciar
+            async function inicializarDados() {
+                dados = await carregarDados('cvc');
+                atualizarTabela();
+            }
+
+            form.onsubmit = async function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const linha = [
+                    formData.get('data'),
+                    formData.get('setor'),
+                    Number(formData.get('indicacaoCVC')),
+                    Number(formData.get('curativoIntegro')),
+                    Number(formData.get('sinaisFlogisticos')),
+                    Number(formData.get('curativoIdentificacao')),
+                    Number(formData.get('equipoValidade'))
+                ];
+                await salvarRegistro('cvc', linha);
+                dados.push(linha);
+                atualizarTabela();
+                form.reset();
+            };
+
+            function toggleFiltroData() {
+                const tipo = document.getElementById('tipoFiltroData').value;
+                document.getElementById('filtroDataUnica').style.display =
+                    tipo === 'data' ? 'block' : 'none';
+                document.getElementById('filtroPeriodo').style.display =
+                    tipo === 'periodo' ? 'block' : 'none';
+            }
+
+            function exportarCSV() {
+                const headers = ['Data', 'Setor', 'Indicação CVC', 'Integridade', 'Sinais Flogísticos', 'Identificação', 'Validade'];
+                const totais = [
+                    document.getElementById('totalIndicacao').textContent,
+                    document.getElementById('totalIntegridade').textContent,
+                    document.getElementById('totalSinais').textContent,
+                    document.getElementById('totalIdentificacao').textContent,
+                    document.getElementById('totalValidade').textContent
+                ];
+
+                const tipoData = document.getElementById('tipoFiltroData').value;
+                const filtros = {
+                    tipoData,
+                    data: document.getElementById('filtroData').value,
+                    dataInicial: document.getElementById('filtroDataInicial').value,
+                    dataFinal: document.getElementById('filtroDataFinal').value,
+                    setor: document.getElementById('filtroSetor').value
+                };
+
+                exportarParaExcel(dados, headers, 'auditoria_cvc', totais, filtros);
+            }
+
+            // Inicializa tabela vazia
+            atualizarTabela();
+            inicializarDados();
+        </script>
+    </div>
+
+</body>
+
+</html>
