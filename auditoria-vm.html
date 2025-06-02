@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="js/export-utils.js"></script>
+    <script type="module">
+        import { verificarLogin } from './js/auth.js';
+        if (!verificarLogin()) {
+            window.location.href = 'login.html';
+        }
+    </script>
 </head>
 
 <body>
