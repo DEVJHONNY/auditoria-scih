@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Auditoria de Ventilação Mecânica</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="js/export-utils.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo-hospital-bahia.png" alt="Hospital da Bahia" class="header-logo">
+            <h2>Auditoria de Ventilação Mecânica</h2>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="index.html" style="text-decoration: none;">
+                <button type="button" style="background-color: #666;">Voltar ao Menu</button>
+            </a>
+        </div>
+        <form id="vmForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nome do Paciente:</label>
+                    <input type="text" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label>Data da Auditoria:</label>
+                    <input type="date" name="data" required>
+                </div>
+                <div class="form-group">
+                    <label>Setor:</label>
+                    <select name="setor" required>
+                        <option value="">Selecione o setor</option>
+                        <option value="UTI 2B">UTI 2ºB</option>
+                        <option value="UTI 2C">UTI 2ºC</option>
+                        <option value="UTI 5C">UTI 5ºC</option>
+                        <option value="SEMI 6C">SEMI 6C</option>
+                        <option value="Unidades Abertas">Unidades Abertas</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Possibilidade de descontinuidade VM?</label>
+                    <select name="descontinuidadeVM" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pressão do Cuff mensurada (1x/Dia):</label>
+                    <input type="number" name="pressaoCuffMedida" required min="0" max="100">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Pressão do Cuff adequada (25-30 cmH2O):</label>
+                    <select name="pressaoCuffAdequada" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim (Conforme)</option>
+                        <option value="0">Não (Não Conforme)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Higiene Oral realizada (3x/Dia):</label>
+                    <select name="higieneOral" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Cabeceira elevada 30-45º:</label>
+                    <select name="cabeceira" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ausência de excesso de água/condensado na traquéia:</label>
+                    <select name="condensado" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>A posição do filtro está adequada?</label>
+                    <select name="filtro" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>TOT/TQT identificada?</label>
+                    <select name="identificacao" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>SNE bem fixada/posicionada:</label>
+                <select name="sne" required>
+                    <option value="">Selecione</option>
+                    <option value="1">Sim</option>
+                    <option value="0">Não</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Observações:</label>
+                <textarea name="obs" rows="3"></textarea>
+            </div>
+
+            <button type="submit">Adicionar Registro</button>
+        </form>
+
+        <table id="dadosTable">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Setor</th>
+                    <th>Possibilidade de descontinuidade VM?</th>
+                    <th>Pressão do Cuff mensurada (1x/Dia)</th>
+                    <th>Pressão do Cuff adequada (25-30 cmH2O)</th>
+                    <th>Higiene Oral realizada (3x/Dia)</th>
+                    <th>Cabeceira elevada 30-45º</th>
+                    <th>Ausência de exesso água/condensado na traquéia</th>
+                    <th>A posição do filtro está adequada?</th>
+                    <th>TOT/TQT identificada?</th>
+                    <th>SNE bem fixada/posicionada</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td id="totalDescontinuidade">0</td>
+                    <td id="totalPressaoCuffMedida">0</td>
+                    <td id="totalPressaoCuffAdequada">0</td>
+                    <td id="totalHigiene">0</td>
+                    <td id="totalCabeceira">0</td>
+                    <td id="totalCondensado">0</td>
+                    <td id="totalFiltro">0</td>
+                    <td id="totalIdentificacao">0</td>
+                    <td id="totalSNE">0</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="form-row" style="margin-top: 20px;">
+            <div class="form-group">
+                <label>Tipo de Filtro de Data:</label>
+                <select id="tipoFiltroData" onchange="toggleFiltroData()">
+                    <option value="data">Data Específica</option>
+                    <option value="periodo">Período</option>
+                </select>
+            </div>
+            <div id="filtroDataUnica" class="form-group">
+                <label>Data:</label>
+                <input type="date" id="filtroData">
+            </div>
+            <div id="filtroPeriodo" class="form-group" style="display: none;">
+                <div style="display: flex; gap: 10px;">
+                    <div>
+                        <label>Data Inicial:</label>
+                        <input type="date" id="filtroDataInicial">
+                    </div>
+                    <div>
+                        <label>Data Final:</label>
+                        <input type="date" id="filtroDataFinal">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Filtrar por Setor:</label>
+                <select id="filtroSetor">
+                    <option value="">Todos os setores</option>
+                    <option value="UTI 2B">UTI 2ºB</option>
+                    <option value="UTI 2C">UTI 2ºC</option>
+                    <option value="UTI 5C">UTI 5ºC</option>
+                    <option value="SEMI 6C">SEMI 6C</option>
+                    <option value="Unidades Abertas">Unidades Abertas</option>
+                </select>
+            </div>
+        </div>
+
+        <script>
+            const form = document.getElementById('vmForm');
+            const tabela = document.getElementById('dadosTable').getElementsByTagName('tbody')[0];
+
+            // Dados iniciais
+            let dados = [];
+
+            function toggleFiltroData() {
+                const tipo = document.getElementById('tipoFiltroData').value;
+                document.getElementById('filtroDataUnica').style.display =
+                    tipo === 'data' ? 'block' : 'none';
+                document.getElementById('filtroPeriodo').style.display =
+                    tipo === 'periodo' ? 'block' : 'none';
+            }
+
+            function exportarCSV() {
+                const headers = ['Data', 'Setor', 'Descontinuidade VM', 'Pressão Cuff Medida', 'Pressão Cuff Adequada',
+                    'Higiene Oral', 'Cabeceira', 'Condensado', 'Filtro', 'Identificação', 'SNE'];
+                const totais = [
+                    document.getElementById('totalDescontinuidade').textContent,
+                    document.getElementById('totalPressaoCuffMedida').textContent,
+                    document.getElementById('totalPressaoCuffAdequada').textContent,
+                    document.getElementById('totalHigiene').textContent,
+                    document.getElementById('totalCabeceira').textContent,
+                    document.getElementById('totalCondensado').textContent,
+                    document.getElementById('totalFiltro').textContent,
+                    document.getElementById('totalIdentificacao').textContent,
+                    document.getElementById('totalSNE').textContent
+                ];
+
+                const tipoData = document.getElementById('tipoFiltroData').value;
+                const filtros = {
+                    tipoData,
+                    data: document.getElementById('filtroData').value,
+                    dataInicial: document.getElementById('filtroDataInicial').value,
+                    dataFinal: document.getElementById('filtroDataFinal').value,
+                    setor: document.getElementById('filtroSetor').value
+                };
+
+                exportarParaExcel(dados, headers, 'auditoria_vm', totais, filtros);
+            }
+
+            function atualizarTotais() {
+                const totais = dados.reduce((acc, linha) => {
+                    for (let i = 2; i < 11; i++) {
+                        acc[i] = (acc[i] || 0) + Number(linha[i]);
+                    }
+                    return acc;
+                }, {});
+
+                ['Descontinuidade', 'PressaoCuffMedida', 'PressaoCuffAdequada', 'Higiene', 'Cabeceira', 'Condensado', 'Filtro', 'Identificacao', 'SNE'].forEach((campo, idx) => {
+                    document.getElementById('total' + campo).textContent = totais[idx + 2] || 0;
+                });
+            }
+
+            function atualizarTabela() {
+                tabela.innerHTML = '';
+                dados.forEach(linha => {
+                    const row = tabela.insertRow();
+                    linha.forEach(valor => {
+                        const td = row.insertCell();
+                        td.textContent = valor;
+                    });
+                });
+                atualizarTotais();
+            }
+
+            // Inicializa tabela com dados
+            atualizarTabela();
+
+            form.onsubmit = function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const linha = [
+                    formData.get('data'),
+                    formData.get('setor'),
+                    Number(formData.get('descontinuidadeVM')),
+                    Number(formData.get('pressaoCuffMedida')),
+                    Number(formData.get('pressaoCuffAdequada')),
+                    Number(formData.get('higieneOral')),
+                    Number(formData.get('cabeceira')),
+                    Number(formData.get('condensado')),
+                    Number(formData.get('filtro')),
+                    Number(formData.get('identificacao')),
+                    Number(formData.get('sne'))
+                ];
+                dados.push(linha);
+                atualizarTabela();
+                atualizarTotais();
+                form.reset();
+            };
+        </script>
+    </div>
+
+</body>
+
+</html>
