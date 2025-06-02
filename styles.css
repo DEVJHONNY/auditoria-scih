@@ -6,6 +6,10 @@
     --text-color: #333;
     --background-light: #f5f5f5;
     --white: #ffffff;
+    --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+    --transition-default: all 0.3s ease;
 }
 
 /* Estilos gerais */
@@ -16,12 +20,29 @@ body {
 }
 
 .container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     max-width: 1200px;
     margin: 0 auto;
+    padding: 20px;
+    background: var(--white);
+    border-radius: 15px;
+    box-shadow: var(--shadow-card);
+}
+
+/* Gradientes e cores */
+.header {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 40px 20px;
+    border-radius: 15px;
+    text-align: center;
+    position: relative;
+}
+
+.header h1,
+.header h2,
+.header .subtitle {
+    color: white;
+    margin: 10px 0;
 }
 
 /* Headers e navegação */
@@ -47,39 +68,56 @@ body {
 }
 
 .back-button {
-    background-color: var(--secondary-color);
+    background: var(--gradient-primary);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Formulários */
-.form-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
+.back-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-.form-group {
-    flex: 1;
+.back-button::before {
+    content: '←';
+    font-size: 1.2em;
 }
 
-label {
-    display: block;
-    margin-top: 15px;
-    font-weight: bold;
-    color: #333;
+/* Cards e containers */
+.container {
+    background: linear-gradient(to bottom right, var(--white), #f8f9fa);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-default);
 }
 
+/* Formulários modernos */
 input,
 select,
 textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    padding: 12px;
+    transition: all 0.3s ease;
 }
 
-/* Botões */
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 166, 177, 0.1);
+    outline: none;
+}
+
+/* Botões estilizados */
 button {
     background-color: var(--primary-color);
     color: white;
@@ -103,28 +141,243 @@ button:hover {
     background-color: var(--secondary-color);
 }
 
-/* Tabelas */
+.button-primary {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.button-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Tabelas estilizadas */
 table {
     width: 100%;
     margin-top: 30px;
     border-collapse: collapse;
     background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
 }
 
-th,
+thead {
+    background: var(--gradient-primary);
+}
+
+th {
+    background: transparent;
+    color: #f0f8ff;
+    /* Azul claro para melhor contraste */
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+    padding: 15px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+}
+
 td {
     border: 1px solid #ddd;
     padding: 12px;
     text-align: left;
 }
 
-th {
-    background-color: #f2f2f2;
-}
-
 tfoot td {
     font-weight: bold;
     background-color: #f8f9fa;
+}
+
+/* Animações */
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Loading */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 245, 245, 0.98));
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--background-light);
+    border-top: 5px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.loading-text {
+    color: var(--primary-color);
+    font-size: 1.2em;
+    margin: 0;
+    font-weight: 500;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    animation: slideIn 0.3s ease-out;
+    border-left: 4px solid var(--primary-color);
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast.error {
+    background: #dc3545;
+    border-left-color: #dc3545;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Ripple effect nos botões */
+button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    transform-origin: center;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Efeitos de Carregamento */
+.page-transition {
+    animation: pageTransition 0.5s ease-out;
+}
+
+@keyframes pageTransition {
+    0% {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Pulse effect nos cards */
+.audit-card:hover .icon {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* Responsividade e Cross-Platform */

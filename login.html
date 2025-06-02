@@ -3,41 +3,56 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login - Sistema de Auditorias</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SCIH Hospital da Bahia</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <div class="container">
+    <div class="container fade-in">
         <div class="header">
             <img src="logo-hospital-bahia.png" alt="Hospital da Bahia" class="header-logo">
-            <h2>Login do Sistema</h2>
+            <h2>Controle de Infecção Hospitalar</h2>
+            <p class="subtitle">Sistema de Auditoria</p>
         </div>
-        <form id="loginForm" style="max-width: 400px; margin: 0 auto;">
+        <form id="loginForm" class="login-form">
             <div class="form-group">
                 <label>Usuário:</label>
-                <input type="text" id="usuario" required>
+                <input type="text" id="usuario" required autofocus>
             </div>
             <div class="form-group">
                 <label>Senha:</label>
                 <input type="password" id="senha" required>
             </div>
-            <button type="submit">Entrar</button>
+            <button type="submit" class="login-button">Entrar</button>
         </form>
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+        </div>
     </div>
 
     <script type="module">
         import { login } from './js/auth.js';
+        import { showLoadingWithMessage, hideLoading, showToast, navigateWithLoading } from './js/ui-utils.js';
 
-        document.getElementById('loginForm').onsubmit = function (e) {
+        document.getElementById('loginForm').onsubmit = async function (e) {
             e.preventDefault();
+            showLoadingWithMessage('Verificando credenciais...');
+
             const usuario = document.getElementById('usuario').value;
             const senha = document.getElementById('senha').value;
 
-            if (login(usuario, senha)) {
-                window.location.href = 'index.html';
-            } else {
-                alert('Usuário ou senha incorretos');
+            try {
+                if (login(usuario, senha)) {
+                    showToast('Login realizado com sucesso!');
+                    setTimeout(() => navigateWithLoading('menu.html', 'Entrando no sistema...'), 500);
+                } else {
+                    showToast('Usuário ou senha incorretos', 'error');
+                }
+            } catch (error) {
+                showToast('Erro ao fazer login', 'error');
+            } finally {
+                hideLoading();
             }
         };
     </script>
