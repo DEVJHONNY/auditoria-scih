@@ -1,13 +1,15 @@
-function showLoading() {
+function showLoading(message = 'Carregando...') {
     const loader = document.createElement('div');
     loader.className = 'loading';
-    loader.innerHTML = '<div class="spinner"></div>';
+    loader.innerHTML = `<div class="loading-content"><div class="spinner"></div><p>${message}</p></div>`;
     document.body.appendChild(loader);
 }
 
 function hideLoading() {
-    const loader = document.querySelector('.loading');
-    if (loader) loader.remove();
+    const loading = document.querySelector('.loading');
+    if (loading) {
+        loading.remove();
+    }
 }
 
 function showToast(message, type = 'success') {
@@ -31,13 +33,6 @@ function navigateWithLoading(url, message = 'Carregando...') {
     }, 500);
 }
 
-function showLoadingWithMessage(message = 'Carregando...') {
-    const loader = document.createElement('div');
-    loader.className = 'loading';
-    loader.innerHTML = `<div class="loading-content"><div class="spinner"></div><p>${message}</p></div>`;
-    document.body.appendChild(loader);
-}
-
 function addTableAnimation() {
     const rows = document.querySelectorAll('tbody tr');
     rows.forEach((row, index) => {
@@ -48,7 +43,7 @@ function addTableAnimation() {
 }
 
 // Expor funções globalmente
-window.showLoadingWithMessage = showLoadingWithMessage;
+window.showLoading = showLoading;
 window.hideLoading = hideLoading;
 window.showToast = showToast;
 window.navigateWithLoading = navigateWithLoading;
