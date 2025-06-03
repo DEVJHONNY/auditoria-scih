@@ -15,18 +15,17 @@
                 const usuario = document.getElementById('usuario').value.toUpperCase();
                 const senha = document.getElementById('senha').value;
 
-                // Validação direta (temporária)
-                if ((usuario === 'LAROCHA' && senha === 'Luc@S1996070707') ||
-                    (usuario === 'IOMIRANDA' && senha === 'may123')) {
-                    localStorage.setItem('userLoggedIn', 'true');
+                // Login direto com os usuários definidos
+                if ((usuario === 'IOMIRANDA' && senha === 'may123') ||
+                    (usuario === 'LAROCHA' && senha === 'Luc@S1996070707') ||
+                    (usuario === 'EBISPO' && senha === 'evelyn123')) {
                     localStorage.setItem('auth', JSON.stringify({
                         usuario: usuario,
                         timestamp: Date.now()
                     }));
+                    localStorage.setItem('userLoggedIn', 'true');
                     showToast('Login realizado com sucesso!');
-                    setTimeout(() => {
-                        navigateWithLoading('menu.html', 'Entrando no sistema...');
-                    }, 500);
+                    setTimeout(() => navigateWithLoading('menu.html', 'Entrando no sistema...'), 500);
                 } else {
                     showToast('Usuário ou senha incorretos', 'error');
                 }
@@ -49,11 +48,11 @@
         <form id="loginForm" class="login-form" onsubmit="realizarLogin(event)">
             <div class="form-group">
                 <label>Usuário:</label>
-                <input type="text" id="usuario" required autofocus>
+                <input type="text" id="usuario" required autocomplete="username" autofocus>
             </div>
             <div class="form-group">
                 <label>Senha:</label>
-                <input type="password" id="senha" required>
+                <input type="password" id="senha" required autocomplete="current-password">
             </div>
             <button type="submit" class="login-button">Entrar</button>
         </form>

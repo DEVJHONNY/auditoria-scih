@@ -6,6 +6,7 @@ const usuarios = {
 
 function login(usuario, senha) {
     usuario = usuario.toUpperCase();
+    console.log('Tentando login com:', usuario); // Debug
     if (usuarios[usuario] === senha) {
         localStorage.setItem('auth', JSON.stringify({
             usuario: usuario,
@@ -29,5 +30,14 @@ function verificarLogin() {
     }
     return true;
 }
+
+function logout() {
+    localStorage.removeItem('auth');
+    localStorage.removeItem('userLoggedIn');
+    window.location.href = 'login.html';
+}
+
+window.verificarLogin = verificarLogin;
+window.logout = logout;
 
 export { login, verificarLogin };
