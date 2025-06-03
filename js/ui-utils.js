@@ -5,6 +5,18 @@ function showLoading(message = 'Carregando...') {
     document.body.appendChild(loader);
 }
 
+function showLoadingWithMessage(message) {
+    const loading = document.createElement('div');
+    loading.className = 'loading';
+    loading.innerHTML = `
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="loading-text">${message}</p>
+        </div>
+    `;
+    document.body.appendChild(loading);
+}
+
 function hideLoading() {
     const loading = document.querySelector('.loading');
     if (loading) {
@@ -47,3 +59,4 @@ window.showLoading = showLoading;
 window.hideLoading = hideLoading;
 window.showToast = showToast;
 window.navigateWithLoading = navigateWithLoading;
+window.showLoadingWithMessage = showLoadingWithMessage;

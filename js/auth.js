@@ -1,7 +1,6 @@
 const usuarios = {
-    'enfermeira1': 'senha123',
-    'enfermeira2': 'senha456',
-    'admin': 'senhaAdmin'
+    'IOMIRANDA': 'may123',
+    'LAROCHA': 'Luc@S1996070707'
 };
 
 function login(usuario, senha) {

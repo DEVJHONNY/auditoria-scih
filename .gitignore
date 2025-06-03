@@ -6,6 +6,10 @@ server/data/
 .DS_Store
 Thumbs.db
 
+# IDE/Editor
+.vscode/
+.idea/
+
 # Arquivos temporários
 *.log
 *.tmp
