@@ -7,25 +7,80 @@
     <title>Auditoria VM - DASA</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/ui-utils.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/backup-utils.js"></script>
     <script src="js/export-utils.js"></script>
-    <script type="module">
-        import { carregarDados, salvarRegistro } from './js/api-client.js';
-        import { verificarLogin } from './js/auth.js';
-        import { showToast, showLoading, hideLoading, navigateWithLoading } from './js/ui-utils.js';
-
-        if (!verificarLogin()) {
-            window.location.href = 'login.html';
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('js/sw.js')
+                .then(() => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
         }
 
-        window.carregarDados = carregarDados;
-        window.salvarRegistro = salvarRegistro;
-        window.inicializarDados = async () => {
-            showLoading();
-            dados = await carregarDados('vm');
-            atualizarTabela();
-            hideLoading();
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                window.dados = await carregarDados('vm') || [];
+                window.atualizarTabela();
+                if (window.showToast) {
+                    window.showToast('Dados carregados com sucesso');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                if (window.showToast) {
+                    window.showToast('Erro ao carregar dados', 'error');
+                }
+            }
+        });
+
+        const form = document.getElementById('vmForm');
+
+        // Dados iniciais
+        window.dados = [];
+
+        window.atualizarTabela = function () {
+            const tabela = document.getElementById('dadosTable').getElementsByTagName('tbody')[0];
+            tabela.innerHTML = '';
+
+            if (window.dados && Array.isArray(window.dados)) {
+                window.dados.forEach(linha => {
+                    const row = tabela.insertRow();
+                    linha.forEach(valor => {
+                        const td = row.insertCell();
+                        td.textContent = valor;
+                    });
+                });
+
+                // Atualizar totais - incluindo pressão do cuff
+                const totais = window.dados.reduce((acc, linha) => {
+                    acc.descontinuidade += Number(linha[2] || 0);
+                    acc.pressaoCuffMedida += Number(linha[3] || 0);
+                    acc.pressaoCuffAdequada += Number(linha[4] || 0);
+                    acc.higiene += Number(linha[5] || 0);
+                    acc.cabeceira += Number(linha[6] || 0);
+                    acc.condensado += Number(linha[7] || 0);
+                    acc.filtro += Number(linha[8] || 0);
+                    acc.identificacao += Number(linha[9] || 0);
+                    acc.sne += Number(linha[10] || 0);
+                    return acc;
+                }, {
+                    descontinuidade: 0, pressaoCuffMedida: 0, pressaoCuffAdequada: 0,
+                    higiene: 0, cabeceira: 0, condensado: 0, filtro: 0, identificacao: 0, sne: 0
+                });
+
+                // Atualizar células de total
+                document.getElementById('totalDescontinuidade').textContent = totais.descontinuidade;
+                document.getElementById('totalPressaoCuffMedida').textContent = totais.pressaoCuffMedida;
+                document.getElementById('totalPressaoCuffAdequada').textContent = totais.pressaoCuffAdequada;
+                document.getElementById('totalHigiene').textContent = totais.higiene;
+                document.getElementById('totalCabeceira').textContent = totais.cabeceira;
+                document.getElementById('totalCondensado').textContent = totais.condensado;
+                document.getElementById('totalFiltro').textContent = totais.filtro;
+                document.getElementById('totalIdentificacao').textContent = totais.identificacao;
+                document.getElementById('totalSNE').textContent = totais.sne;
+            }
         };
-        window.navigateWithLoading = navigateWithLoading;
     </script>
 </head>
 
@@ -74,7 +129,11 @@
                 </div>
                 <div class="form-group">
                     <label>Pressão do Cuff mensurada (1x/Dia):</label>
-                    <input type="number" name="pressaoCuffMedida" required min="0" max="100">
+                    <select name="pressaoCuffMedida" required>
+                        <option value="">Selecione</option>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
                 </div>
             </div>
 
@@ -222,102 +281,19 @@
             </div>
         </div>
 
-        <script>
-            const form = document.getElementById('vmForm');
-            const tabela = document.getElementById('dadosTable').getElementsByTagName('tbody')[0];
-
-            // Dados iniciais
-            let dados = [];
-
-            function toggleFiltroData() {
-                const tipo = document.getElementById('tipoFiltroData').value;
-                document.getElementById('filtroDataUnica').style.display =
-                    tipo === 'data' ? 'block' : 'none';
-                document.getElementById('filtroPeriodo').style.display =
-                    tipo === 'periodo' ? 'block' : 'none';
-            }
-
-            function exportarCSV() {
-                const headers = ['Data', 'Setor', 'Descontinuidade VM', 'Pressão Cuff Medida', 'Pressão Cuff Adequada',
-                    'Higiene Oral', 'Cabeceira', 'Condensado', 'Filtro', 'Identificação', 'SNE'];
-                const totais = [
-                    document.getElementById('totalDescontinuidade').textContent,
-                    document.getElementById('totalPressaoCuffMedida').textContent,
-                    document.getElementById('totalPressaoCuffAdequada').textContent,
-                    document.getElementById('totalHigiene').textContent,
-                    document.getElementById('totalCabeceira').textContent,
-                    document.getElementById('totalCondensado').textContent,
-                    document.getElementById('totalFiltro').textContent,
-                    document.getElementById('totalIdentificacao').textContent,
-                    document.getElementById('totalSNE').textContent
-                ];
-
-                const tipoData = document.getElementById('tipoFiltroData').value;
-                const filtros = {
-                    tipoData,
-                    data: document.getElementById('filtroData').value,
-                    dataInicial: document.getElementById('filtroDataInicial').value,
-                    dataFinal: document.getElementById('filtroDataFinal').value,
-                    setor: document.getElementById('filtroSetor').value
-                };
-
-                exportarParaExcel(dados, headers, 'auditoria_vm', totais, filtros);
-            }
-
-            function atualizarTotais() {
-                const totais = dados.reduce((acc, linha) => {
-                    for (let i = 2; i < 11; i++) {
-                        acc[i] = (acc[i] || 0) + Number(linha[i]);
-                    }
-                    return acc;
-                }, {});
-
-                ['Descontinuidade', 'PressaoCuffMedida', 'PressaoCuffAdequada', 'Higiene', 'Cabeceira', 'Condensado', 'Filtro', 'Identificacao', 'SNE'].forEach((campo, idx) => {
-                    document.getElementById('total' + campo).textContent = totais[idx + 2] || 0;
-                });
-            }
-
-            function atualizarTabela() {
-                tabela.innerHTML = '';
-                dados.forEach(linha => {
-                    const row = tabela.insertRow();
-                    linha.forEach(valor => {
-                        const td = row.insertCell();
-                        td.textContent = valor;
-                    });
-                });
-                atualizarTotais();
-            }
-
-            // Inicializa tabela com dados
-            atualizarTabela();
-
-            form.onsubmit = function (e) {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const linha = [
-                    formData.get('data'),
-                    formData.get('setor'),
-                    Number(formData.get('descontinuidadeVM')),
-                    Number(formData.get('pressaoCuffMedida')),
-                    Number(formData.get('pressaoCuffAdequada')),
-                    Number(formData.get('higieneOral')),
-                    Number(formData.get('cabeceira')),
-                    Number(formData.get('condensado')),
-                    Number(formData.get('filtro')),
-                    Number(formData.get('identificacao')),
-                    Number(formData.get('sne'))
-                ];
-                dados.push(linha);
-                atualizarTabela();
-                atualizarTotais();
-                form.reset();
-            };
-        </script>
-
         <button onclick="exportarCSV()" class="button-primary">
             📊 Exportar para Excel
         </button>
+
+        <div class="backup-controls">
+            <button onclick="realizarBackup()" class="button-secondary">
+                💾 Fazer Backup
+            </button>
+            <input type="file" id="restaurarBackup" accept=".json" style="display: none;">
+            <button onclick="document.getElementById('restaurarBackup').click()" class="button-secondary">
+                📂 Restaurar Backup
+            </button>
+        </div>
     </div>
 
 </body>

@@ -1,58 +1,44 @@
-export function showLoading() {
+function showLoading() {
     const loader = document.createElement('div');
     loader.className = 'loading';
     loader.innerHTML = '<div class="spinner"></div>';
     document.body.appendChild(loader);
 }
 
-export function hideLoading() {
+function hideLoading() {
     const loader = document.querySelector('.loading');
-    if (loader) {
-        loader.classList.add('fade-out');
-        setTimeout(() => loader.remove(), 300);
-    }
+    if (loader) loader.remove();
 }
 
-export function showToast(message, type = 'success') {
+function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.textContent = message;
     document.body.appendChild(toast);
-
-    requestAnimationFrame(() => {
-        toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    });
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-export function pageTransition() {
+function pageTransition() {
     document.body.classList.add('page-transition');
     setTimeout(() => document.body.classList.remove('page-transition'), 500);
 }
 
-export function navigateWithLoading(url, message = 'Carregando...') {
+function navigateWithLoading(url, message = 'Carregando...') {
     showLoadingWithMessage(message);
     setTimeout(() => {
         window.location.href = url;
-    }, 800);
+    }, 500);
 }
 
-export function showLoadingWithMessage(message) {
+function showLoadingWithMessage(message = 'Carregando...') {
     const loader = document.createElement('div');
     loader.className = 'loading';
-    loader.innerHTML = `
-        <div class="loading-content">
-            <div class="spinner"></div>
-            <p class="loading-text">${message}</p>
-        </div>
-    `;
+    loader.innerHTML = `<div class="loading-content"><div class="spinner"></div><p>${message}</p></div>`;
     document.body.appendChild(loader);
 }
 
-export function addTableAnimation() {
+function addTableAnimation() {
     const rows = document.querySelectorAll('tbody tr');
     rows.forEach((row, index) => {
         row.style.animation = `fadeIn 0.3s ease-out ${index * 0.1}s`;
@@ -60,3 +46,9 @@ export function addTableAnimation() {
         row.style.animationFillMode = 'forwards';
     });
 }
+
+// Expor funções globalmente
+window.showLoadingWithMessage = showLoadingWithMessage;
+window.hideLoading = hideLoading;
+window.showToast = showToast;
+window.navigateWithLoading = navigateWithLoading;

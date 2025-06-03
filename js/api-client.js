@@ -1,8 +1,13 @@
-const STORAGE_KEY = 'auditoria_data';
+const dadosIniciais = {
+    cvc: [],
+    vm: [],
+    sonda: []
+};
 
-export async function carregarDados(tipo) {
+// Armazenamento inicial vazio para cada tipo de auditoria
+function carregarDados(tipo) {
     try {
-        const dados = localStorage.getItem(`${STORAGE_KEY}_${tipo}`);
+        const dados = localStorage.getItem(`dados_${tipo}`);
         return dados ? JSON.parse(dados) : [];
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -10,14 +15,31 @@ export async function carregarDados(tipo) {
     }
 }
 
-export async function salvarRegistro(tipo, dados) {
+function salvarRegistro(tipo, registro) {
     try {
-        const registros = await carregarDados(tipo);
-        registros.push(dados);
-        localStorage.setItem(`${STORAGE_KEY}_${tipo}`, JSON.stringify(registros));
-        return { success: true };
+        const dados = carregarDados(tipo);
+        dados.push(registro);
+        localStorage.setItem(`dados_${tipo}`, JSON.stringify(dados));
+        return true;
     } catch (error) {
-        console.error('Erro ao salvar:', error);
-        return { success: false, error };
+        console.error('Erro ao salvar registro:', error);
+        return false;
     }
 }
+
+function limparDados() {
+    try {
+        localStorage.removeItem('dados_cvc');
+        localStorage.removeItem('dados_vm');
+        localStorage.removeItem('dados_sonda');
+        return true;
+    } catch (error) {
+        console.error('Erro ao limpar dados:', error);
+        return false;
+    }
+}
+
+// Expor funções globalmente
+window.carregarDados = carregarDados;
+window.salvarRegistro = salvarRegistro;
+window.limparDados = limparDados;
