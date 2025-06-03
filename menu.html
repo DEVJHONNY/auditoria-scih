@@ -6,16 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu - SCIH Hospital da Bahia</title>
     <link rel="stylesheet" href="styles.css">
-    <script type="module">
-        import { navigateWithLoading, showToast } from './js/ui-utils.js';
-
-        window.navigateWithLoading = navigateWithLoading;
-        window.logout = function () {
-            localStorage.removeItem('auth');
-            showToast('Saindo do sistema...');
-            navigateWithLoading('login.html', 'Finalizando sessão...');
-        };
-    </script>
+    <script src="js/api-client.js"></script>
+    <script src="js/ui-utils.js"></script>
+    <script src="js/utils.js"></script>
     <style>
         .audit-grid {
             display: grid;
@@ -180,6 +173,23 @@
             </a>
         </div>
     </div>
+
+    <script>
+        // Verificar se as funções de navegação estão disponíveis
+        if (typeof navigateWithLoading === 'undefined') {
+            function navigateWithLoading(url, message = 'Carregando...') {
+                const loader = document.createElement('div');
+                loader.className = 'loading';
+                loader.innerHTML = `<div class="loading-content"><div class="spinner"></div><p>${message}</p></div>`;
+                document.body.appendChild(loader);
+
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 500);
+            }
+            window.navigateWithLoading = navigateWithLoading;
+        }
+    </script>
 </body>
 
 </html>

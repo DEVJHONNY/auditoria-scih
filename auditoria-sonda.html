@@ -4,28 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditoria de Sonda - DASA</title>
+    <title>Auditoria Sonda - DASA</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/ui-utils.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/backup-utils.js"></script>
     <script src="js/export-utils.js"></script>
-    <script type="module">
-        import { carregarDados, salvarRegistro } from './js/api-client.js';
-        import { verificarLogin } from './js/auth.js';
-        import { showToast, showLoading, hideLoading, navigateWithLoading } from './js/ui-utils.js';
-
-        if (!verificarLogin()) {
-            window.location.href = 'login.html';
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('js/sw.js')
+                .then(() => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
         }
 
-        window.carregarDados = carregarDados;
-        window.salvarRegistro = salvarRegistro;
-        window.inicializarDados = async () => {
-            showLoading();
-            dados = await carregarDados('sonda');
-            atualizarTabela();
-            hideLoading();
-        };
-        window.navigateWithLoading = navigateWithLoading;
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                window.dados = await carregarDados('sonda') || [];
+                window.atualizarTabela();
+                if (window.showToast) {
+                    window.showToast('Dados carregados com sucesso');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                if (window.showToast) {
+                    window.showToast('Erro ao carregar dados', 'error');
+                }
+            }
+        });
     </script>
 </head>
 
@@ -188,23 +195,40 @@
             📊 Exportar para Excel
         </button>
 
+        <div class="backup-controls">
+            <button onclick="realizarBackup()" class="button-secondary">
+                💾 Fazer Backup
+            </button>
+            <input type="file" id="restaurarBackup" accept=".json" style="display: none;">
+            <button onclick="document.getElementById('restaurarBackup').click()" class="button-secondary">
+                📂 Restaurar Backup
+            </button>
+        </div>
+
         <script>
             const form = document.getElementById('sondaForm');
-            const tabela = document.getElementById('dadosTable').getElementsByTagName('tbody')[0];
 
             // Dados iniciais
-            let dados = [];
+            window.dados = [];
 
-            function atualizarTabela() {
+            window.atualizarTabela = function () {
+                const tabela = document.getElementById('dadosTable').getElementsByTagName('tbody')[0];
                 tabela.innerHTML = '';
-                dados.forEach(linha => {
-                    const row = tabela.insertRow();
-                    linha.forEach(valor => {
-                        const td = row.insertCell();
-                        td.textContent = valor;
+
+                if (window.dados && Array.isArray(window.dados)) {
+                    window.dados.forEach(linha => {
+                        const row = tabela.insertRow();
+                        linha.forEach(valor => {
+                            const td = row.insertCell();
+                            td.textContent = valor;
+                        });
                     });
-                });
-                atualizarTotais();
+
+                    // Atualizar totais
+                    const colunas = ['Indicacao', 'Fixacao', 'Higiene', 'Fluxo', 'Coletor', 'Chao', 'Volume'];
+                    const totais = calcularTotais(window.dados, colunas);
+                    atualizarTotaisNaTabela(totais);
+                }
             }
 
             function toggleFiltroData() {
@@ -215,67 +239,72 @@
                     tipo === 'periodo' ? 'block' : 'none';
             }
 
-            function exportarCSV() {
-                const headers = ['Data', 'Setor', 'SVD Indicação', 'Fixação', 'Higiene', 'Fluxo', 'Coletor Bexiga', 'Coletor Chão', 'Volume 2/3'];
-                const totais = [
-                    document.getElementById('totalIndicacao').textContent,
-                    document.getElementById('totalFixacao').textContent,
-                    document.getElementById('totalHigiene').textContent,
-                    document.getElementById('totalFluxo').textContent,
-                    document.getElementById('totalColetor').textContent,
-                    document.getElementById('totalChao').textContent,
-                    document.getElementById('totalVolume').textContent
-                ];
-
-                const tipoData = document.getElementById('tipoFiltroData').value;
-                const filtros = {
-                    tipoData,
-                    data: document.getElementById('filtroData').value,
-                    dataInicial: document.getElementById('filtroDataInicial').value,
-                    dataFinal: document.getElementById('filtroDataFinal').value,
-                    setor: document.getElementById('filtroSetor').value
-                };
-
-                exportarParaExcel(dados, headers, 'auditoria_svd', totais, filtros);
-            }
-
-            function atualizarTotais() {
-                const totais = dados.reduce((acc, linha) => {
-                    for (let i = 2; i < 9; i++) {
-                        acc[i] = (acc[i] || 0) + Number(linha[i]);
-                    }
-                    return acc;
-                }, {});
-
-                ['Indicacao', 'Fixacao', 'Higiene', 'Fluxo', 'Coletor', 'Chao', 'Volume'].forEach((campo, idx) => {
-                    document.getElementById('total' + campo).textContent = totais[idx + 2] || 0;
-                });
-            }
-
             // Atualiza a tabela e os totais ao carregar a página
             atualizarTabela();
-            atualizarTotais();
 
             // Atualiza os totais após adicionar novo registro
-            form.onsubmit = function (e) {
+            form.onsubmit = async function (e) {
                 e.preventDefault();
                 const formData = new FormData(form);
-                const linha = [
-                    formData.get('data'),
-                    formData.get('setor'),
-                    Number(formData.get('indicacaoSVD')),
-                    Number(formData.get('fixacao')),
-                    Number(formData.get('higieneIntima')),
-                    Number(formData.get('fluxoDesobstruido')),
-                    Number(formData.get('coletorAbaixo')),
-                    Number(formData.get('coletorChao')),
-                    Number(formData.get('coletorVolume'))
-                ];
-                dados.push(linha);
-                atualizarTabela();
-                atualizarTotais();
-                form.reset();
+
+                // Validação do formulário
+                const { isValid, errors } = validarFormulario(formData, 'sonda');
+                if (!isValid) {
+                    mostrarErros(errors);
+                    return;
+                }
+
+                // Confirmação antes de salvar
+                if (!await confirmarEnvio()) {
+                    return;
+                }
+
+                showLoadingWithMessage('Salvando registro...');
+                try {
+                    const linha = [
+                        formData.get('data'),
+                        formData.get('setor'),
+                        Number(formData.get('indicacaoSVD')),
+                        Number(formData.get('fixacao')),
+                        Number(formData.get('higieneIntima')),
+                        Number(formData.get('fluxoDesobstruido')),
+                        Number(formData.get('coletorAbaixo')),
+                        Number(formData.get('coletorChao')),
+                        Number(formData.get('coletorVolume'))
+                    ];
+                    await salvarRegistro('sonda', linha);
+                    dados.push(linha);
+                    atualizarTabela();
+                    form.reset();
+                    showToast('Registro salvo com sucesso!');
+                } catch (error) {
+                    showToast('Erro ao salvar registro', 'error');
+                } finally {
+                    hideLoading();
+                }
             };
+
+            // Inicializar gráficos após carregar dados
+            function atualizarGraficos() {
+                criarGraficoSetor(dados, 'sonda');
+                criarGraficoTendencia(dados);
+            }
+
+            // Adicionar handler para backup
+            document.getElementById('restaurarBackup').onchange = async function (e) {
+                showLoadingWithMessage('Restaurando backup...');
+                const success = await restaurarBackup(e.target.files[0]);
+                if (success) {
+                    showToast('Backup restaurado com sucesso!');
+                    await inicializarDados();
+                    atualizarGraficos();
+                } else {
+                    showToast('Erro ao restaurar backup', 'error');
+                }
+                hideLoading();
+            };
+
+            window.realizarBackup = realizarBackup;
         </script>
     </div>
 </body>
