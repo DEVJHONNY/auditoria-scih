@@ -15,10 +15,18 @@
                 const usuario = document.getElementById('usuario').value.toUpperCase();
                 const senha = document.getElementById('senha').value;
 
-                if (usuario === 'IOMIRANDA' && senha === 'may123') {
-                    showToast('Login realizado com sucesso!');
+                // Validação direta (temporária)
+                if ((usuario === 'LAROCHA' && senha === 'Luc@S1996070707') ||
+                    (usuario === 'IOMIRANDA' && senha === 'may123')) {
                     localStorage.setItem('userLoggedIn', 'true');
-                    setTimeout(() => navigateWithLoading('menu.html', 'Entrando no sistema...'), 500);
+                    localStorage.setItem('auth', JSON.stringify({
+                        usuario: usuario,
+                        timestamp: Date.now()
+                    }));
+                    showToast('Login realizado com sucesso!');
+                    setTimeout(() => {
+                        navigateWithLoading('menu.html', 'Entrando no sistema...');
+                    }, 500);
                 } else {
                     showToast('Usuário ou senha incorretos', 'error');
                 }

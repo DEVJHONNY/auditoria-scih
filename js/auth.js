@@ -1,14 +1,17 @@
 const usuarios = {
     'IOMIRANDA': 'may123',
-    'LAROCHA': 'Luc@S1996070707'
+    'LAROCHA': 'Luc@S1996070707',
+    'EBISPO': 'evelyn123'
 };
 
 function login(usuario, senha) {
+    usuario = usuario.toUpperCase();
     if (usuarios[usuario] === senha) {
         localStorage.setItem('auth', JSON.stringify({
             usuario: usuario,
             timestamp: Date.now()
         }));
+        localStorage.setItem('userLoggedIn', 'true');
         return true;
     }
     return false;
