@@ -2,15 +2,13 @@
 
 Sistema web para auditoria de procedimentos hospitalares:
 - Auditoria de CVC
-- Auditoria de VM (Ventilação Mecânica)
+- Auditoria de VM
 - Auditoria de Sonda Vesical
 
 ## Funcionalidades
-- Login seguro
-- Registro de procedimentos
+- Registro de auditorias
 - Exportação para Excel
-- Backup/Restauração de dados
-- Interface responsiva
+- Backup/Restauração
 - Relatórios por setor
 
 ## Tecnologias

@@ -6,6 +6,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SCIH Hospital da Bahia</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="js/ui-utils.js"></script>
+    <script>
+        async function realizarLogin(e) {
+            e.preventDefault();
+            showLoading('Autenticando...');
+            try {
+                const usuario = document.getElementById('usuario').value;
+                const senha = document.getElementById('senha').value;
+
+                const response = await fetch('sua-rota-de-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ usuario, senha }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Login realizado com sucesso!');
+                    setTimeout(() => navigateWithLoading('menu.html', 'Entrando no sistema...'), 500);
+                } else {
+                    showToast('Usuário ou senha incorretos', 'error');
+                }
+            } catch (error) {
+                showToast('Erro ao fazer login', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+    </script>
 </head>
 
 <body>
@@ -15,7 +47,7 @@
             <h2>Controle de Infecção Hospitalar</h2>
             <p class="subtitle">Sistema de Auditoria</p>
         </div>
-        <form id="loginForm" class="login-form">
+        <form id="loginForm" class="login-form" onsubmit="realizarLogin(event)">
             <div class="form-group">
                 <label>Usuário:</label>
                 <input type="text" id="usuario" required autofocus>
@@ -30,32 +62,6 @@
             <div class="spinner"></div>
         </div>
     </div>
-
-    <script type="module">
-        import { login } from './js/auth.js';
-        import { showLoadingWithMessage, hideLoading, showToast, navigateWithLoading } from './js/ui-utils.js';
-
-        document.getElementById('loginForm').onsubmit = async function (e) {
-            e.preventDefault();
-            showLoadingWithMessage('Verificando credenciais...');
-
-            const usuario = document.getElementById('usuario').value;
-            const senha = document.getElementById('senha').value;
-
-            try {
-                if (login(usuario, senha)) {
-                    showToast('Login realizado com sucesso!');
-                    setTimeout(() => navigateWithLoading('menu.html', 'Entrando no sistema...'), 500);
-                } else {
-                    showToast('Usuário ou senha incorretos', 'error');
-                }
-            } catch (error) {
-                showToast('Erro ao fazer login', 'error');
-            } finally {
-                hideLoading();
-            }
-        };
-    </script>
 </body>
 
 </html>
