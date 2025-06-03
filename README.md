@@ -1,20 +1,20 @@
 # Sistema de Auditoria SCIH - Hospital da Bahia
 
-Sistema de auditoria para controle de:
+Sistema web para auditorias hospitalares:
 - CVC
 - VM (Ventilação Mecânica)
 - Sonda Vesical
 
-## Usuários do Sistema
+## Acessos
 - IOMIRANDA
 - LAROCHA
 - EBISPO
 
 ## Funcionalidades
 - Login seguro
-- Registro de procedimentos
+- Registro de auditorias
 - Exportação para Excel
-- Backup e Restauração
+- Backup/Restauração
 - Relatórios por setor
 
 ## Tecnologias

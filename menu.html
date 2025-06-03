@@ -91,6 +91,13 @@
             font-weight: 600;
         }
 
+        .header h2 {
+            margin: 10px 0;
+            color: white;
+            font-size: 2em;
+            font-weight: 500;
+        }
+
         .header .subtitle {
             color: rgba(255, 255, 255, 0.9);
             font-size: 1.2em;
@@ -140,13 +147,24 @@
         }
     </style>
     <script>
-        function logout() {
-            if (confirm('Deseja realmente sair?')) {
-                showLoading('Saindo...');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 500);
+        // Verificar login ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const userLoggedIn = localStorage.getItem('userLoggedIn');
+            const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+
+            if (!userLoggedIn || !auth.usuario) {
+                window.location.href = 'login.html';
             }
+
+            // Mostrar nome do usuário logado
+            const usuarioLogado = auth.usuario;
+            document.getElementById('usuarioLogado').textContent = usuarioLogado;
+        });
+
+        function logout() {
+            localStorage.removeItem('userLoggedIn');
+            localStorage.removeItem('auth');
+            window.location.href = 'login.html';
         }
     </script>
 </head>
@@ -154,10 +172,18 @@
 <body>
     <div class="container fade-in">
         <div class="header">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                <button onclick="logout()" class="button-primary" style="margin: 0;">
+                    <span style="margin-right: 5px;">🚪</span> Sair do Sistema
+                </button>
+            </div>
             <img src="logo-hospital-bahia.png" alt="Hospital da Bahia" class="header-logo">
-            <h1>Sistema de Auditoria</h1>
-            <p class="subtitle">Controle de Infecção Hospitalar - SCIH</p>
-            <button class="logout-button" onclick="logout()">Sair</button>
+            <h2>Controle de Infecção Hospitalar</h2>
+            <p class="subtitle">Sistema de Auditoria</p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <span>Usuário: <strong id="usuarioLogado"></strong></span>
         </div>
 
         <div class="audit-grid">
