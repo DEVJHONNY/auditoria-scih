@@ -12,21 +12,12 @@
             e.preventDefault();
             showLoading('Autenticando...');
             try {
-                const usuario = document.getElementById('usuario').value;
+                const usuario = document.getElementById('usuario').value.toUpperCase();
                 const senha = document.getElementById('senha').value;
 
-                const response = await fetch('sua-rota-de-login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ usuario, senha }),
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
+                if (usuario === 'IOMIRANDA' && senha === 'may123') {
                     showToast('Login realizado com sucesso!');
+                    localStorage.setItem('userLoggedIn', 'true');
                     setTimeout(() => navigateWithLoading('menu.html', 'Entrando no sistema...'), 500);
                 } else {
                     showToast('Usuário ou senha incorretos', 'error');

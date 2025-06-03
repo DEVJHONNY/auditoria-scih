@@ -139,6 +139,16 @@
             }
         }
     </style>
+    <script>
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                showLoading('Saindo...');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 500);
+            }
+        }
+    </script>
 </head>
 
 <body>

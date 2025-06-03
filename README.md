@@ -1,14 +1,13 @@
 # Sistema de Auditoria SCIH - Hospital da Bahia
 
-Sistema web para auditoria de procedimentos hospitalares:
+Sistema web para auditoria de procedimentos hospitalares do SCIH.
+
+## Funcionalidades
 - Auditoria de CVC
 - Auditoria de VM
 - Auditoria de Sonda Vesical
-
-## Funcionalidades
-- Registro de auditorias
 - Exportação para Excel
-- Backup/Restauração
+- Backup e Restauração
 - Relatórios por setor
 
 ## Tecnologias
